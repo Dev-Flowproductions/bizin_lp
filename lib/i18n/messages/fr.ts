@@ -56,7 +56,7 @@ export const fr: SiteDictionary = {
   calculator: {
     eligibility: {
       disclaimer:
-        "Ce résultat est indicatif et fondé sur une logique simplifiée. Il ne vaut pas validation officielle d’éligibilité et ne constitue pas un conseil juridique ou financier.",
+        "Ce résultat est indicatif ; il est produit par IA à partir de vos réponses et d’informations générales (y compris le Portugal 2030). Il ne vaut pas validation officielle d’éligibilité et ne constitue pas un conseil juridique ou financier.",
       programmeSuggestions: {
         tecnologia: [
           {
@@ -212,9 +212,27 @@ export const fr: SiteDictionary = {
       durationLine: "Environ une minute · quatre étapes",
       cta: "Lancer l’évaluation",
     },
+    ai: {
+      generatingTitle: "Génération de votre diagnostic",
+      generatingBody:
+        "Cela peut prendre quelques secondes. Nous croisons vos réponses avec le contexte Portugal 2030 et le rôle de Bizin Portugal.",
+      retry: "Réessayer",
+      errorTitle: "Impossible de générer le diagnostic",
+      errorGeneric: "Vérifiez votre connexion et réessayez.",
+      otherSectorLabel: "Décrivez le secteur de votre entreprise",
+      otherSectorPlaceholder:
+        "p.ex. fabrication de dispositifs médicaux, conseil environnemental, commerce spécialisé…",
+      otherSectorHint:
+        "Une ou deux phrases suffisent. Évitez les données personnelles identifiables.",
+      otherSectorRequired:
+        "Décrivez le secteur (au moins 3 caractères) pour continuer.",
+      executiveSummaryHeading: "Synthèse",
+      diagnosisHeading: "Diagnostic",
+      programmeDirectionsHeading: "Axes de programme à explorer",
+    },
     result: {
       scoreLabel: "Score d’éligibilité",
-      programmesHeading: "Axes de programme recommandés",
+      programmesHeading: "Directions de programme suggérées",
       nextStepsHeading: "Prochaines étapes",
       ctaBooking: "Réserver une consultation investissement",
       restart: "Recommencer l’évaluation",

@@ -56,7 +56,7 @@ export const en: SiteDictionary = {
   calculator: {
     eligibility: {
       disclaimer:
-        "This output is indicative and based on simplified rules. It is not official confirmation of eligibility and does not constitute legal or financial advice.",
+        "This output is indicative and was produced with AI from your answers and general context (including Portugal 2030). It is not official confirmation of eligibility and does not constitute legal or financial advice.",
       programmeSuggestions: {
         tecnologia: [
           {
@@ -212,9 +212,27 @@ export const en: SiteDictionary = {
       durationLine: "About one minute · four steps",
       cta: "Start the assessment",
     },
+    ai: {
+      generatingTitle: "Generating your diagnosis",
+      generatingBody:
+        "This may take a few seconds. We are combining your answers with Portugal 2030 context and how Bizin Portugal typically supports projects.",
+      retry: "Try again",
+      errorTitle: "We could not generate the diagnosis",
+      errorGeneric: "Check your connection and try again.",
+      otherSectorLabel: "Describe your company’s sector",
+      otherSectorPlaceholder:
+        "e.g. medical device manufacturing, environmental consulting, specialised retail…",
+      otherSectorHint:
+        "One or two sentences are enough. Avoid personally identifiable data.",
+      otherSectorRequired:
+        "Please describe the sector (at least 3 characters) to continue.",
+      executiveSummaryHeading: "Summary",
+      diagnosisHeading: "Diagnosis",
+      programmeDirectionsHeading: "Programme directions to explore",
+    },
     result: {
       scoreLabel: "Eligibility score",
-      programmesHeading: "Recommended programme axes",
+      programmesHeading: "Suggested programme directions",
       nextStepsHeading: "Suggested next steps",
       ctaBooking: "Book an investment consultation",
       restart: "Start again",
