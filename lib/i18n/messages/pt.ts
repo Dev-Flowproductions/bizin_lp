@@ -56,7 +56,7 @@ export const pt: SiteDictionary = {
   calculator: {
     eligibility: {
       disclaimer:
-        "Este resultado é indicativo e baseado em lógica simplificada. Não constitui validação oficial de elegibilidade nem aconselhamento financeiro ou jurídico.",
+        "Este resultado é indicativo, foi elaborado com recurso a inteligência artificial com base nas suas respostas e em informação geral (incluindo Portugal 2030). Não constitui validação oficial de elegibilidade nem aconselhamento financeiro ou jurídico.",
       programmeSuggestions: {
         tecnologia: [
           {
@@ -212,9 +212,27 @@ export const pt: SiteDictionary = {
       durationLine: "Cerca de 1 minuto · 4 passos",
       cta: "Iniciar avaliação",
     },
+    ai: {
+      generatingTitle: "A gerar o seu diagnóstico",
+      generatingBody:
+        "Isto pode demorar alguns segundos. Estamos a cruzar as suas respostas com o contexto Portugal 2030 e o papel da Bizin Portugal.",
+      retry: "Tentar novamente",
+      errorTitle: "Não foi possível gerar o diagnóstico",
+      errorGeneric: "Verifique a ligação à internet e tente novamente.",
+      otherSectorLabel: "Descreva o setor da sua empresa",
+      otherSectorPlaceholder:
+        "Ex.: produção de equipamentos médicos, consultoria ambiental, retalho especializado…",
+      otherSectorHint:
+        "Uma ou duas frases chegam. Evite dados pessoais identificáveis.",
+      otherSectorRequired:
+        "Descreva o setor (mínimo de 3 caracteres) para continuar.",
+      executiveSummaryHeading: "Resumo",
+      diagnosisHeading: "Diagnóstico",
+      programmeDirectionsHeading: "Eixos de programa a considerar",
+    },
     result: {
       scoreLabel: "Score de elegibilidade",
-      programmesHeading: "Programas recomendados",
+      programmesHeading: "Direções de programa sugeridas",
       nextStepsHeading: "Próximos passos",
       ctaBooking: "Agendar consultoria de investimento",
       restart: "Recomeçar avaliação",

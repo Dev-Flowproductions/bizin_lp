@@ -77,6 +77,21 @@ export interface SiteDictionary {
       durationLine: string;
       cta: string;
     };
+    /** Copy for AI diagnosis flow (Gemini) */
+    ai: {
+      generatingTitle: string;
+      generatingBody: string;
+      retry: string;
+      errorTitle: string;
+      errorGeneric: string;
+      otherSectorLabel: string;
+      otherSectorPlaceholder: string;
+      otherSectorHint: string;
+      otherSectorRequired: string;
+      executiveSummaryHeading: string;
+      diagnosisHeading: string;
+      programmeDirectionsHeading: string;
+    };
     result: {
       scoreLabel: string;
       programmesHeading: string;

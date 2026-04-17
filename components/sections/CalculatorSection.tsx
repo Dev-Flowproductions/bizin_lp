@@ -18,6 +18,7 @@ export function CalculatorSection({ dict }: { dict: SiteDictionary }) {
         <EligibilityCalculator
           calculator={dict.calculator}
           bookingUrl={dict.finalCta.bookingUrl}
+          locale={dict.locale}
         />
       </div>
     </section>
