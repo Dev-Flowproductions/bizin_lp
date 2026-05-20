@@ -102,7 +102,7 @@ export async function POST(request: Request) {
           { role: "system", content: BIZIN_PORTUGAL_2030_CONTEXT },
           { role: "user", content: userPrompt },
         ],
-        temperature: 0.55,
+        // gpt-5.5 only supports the default temperature (1); do not set temperature.
         max_completion_tokens: 4096,
         response_format: { type: "json_object" },
       }),
