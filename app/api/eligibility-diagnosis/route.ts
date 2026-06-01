@@ -9,21 +9,25 @@ import { parseAiDiagnosis } from "@/lib/ai/parse-diagnosis-json";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { calculateEligibility } from "@/lib/calculator-rules";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
+import {
+  getOpenAiApiKey,
+  getOpenAiModel,
+  openAiKeyMissingHint,
+} from "@/lib/server/ai-env";
 
 const MAX_SECTOR_DESC = 600;
 
 /** Temporary: OpenAI instead of Gemini. Override with OPENAI_MODEL. */
 const DEFAULT_MODEL = "gpt-5.5";
 
-function getApiKey(): string | null {
-  return process.env.OPENAI_API_KEY ?? null;
-}
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const apiKey = getApiKey();
+  const apiKey = getOpenAiApiKey();
   if (!apiKey) {
     return NextResponse.json(
-      { error: "Missing OPENAI_API_KEY." },
+      { error: `Missing OPENAI_API_KEY.${openAiKeyMissingHint()}` },
       { status: 503 }
     );
   }
@@ -83,7 +87,7 @@ export async function POST(request: Request) {
   const heuristicInput = heuristicInputFromPayload(answers);
   const heuristic = calculateEligibility(heuristicInput, dict.calculator.eligibility);
 
-  const modelId = process.env.OPENAI_MODEL?.trim() || DEFAULT_MODEL;
+  const modelId = getOpenAiModel(DEFAULT_MODEL);
   const userPrompt = buildEligibilityDiagnosisPrompt(locale, answers, {
     score: heuristic.score,
     band: heuristic.band,

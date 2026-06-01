@@ -5,8 +5,8 @@ export function Hero({ dict }: { dict: SiteDictionary }) {
   const visibleMetrics = trustMetrics.filter((m) => m.visible);
 
   return (
-    <section className="relative min-h-[600px] md:min-h-[700px] lg:min-h-[800px] bg-gray-50 overflow-hidden pt-[88px] md:pt-[96px]">
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-24 lg:py-32">
+    <section className="relative min-h-[600px] md:min-h-[700px] lg:min-h-[800px] bg-gray-50 overflow-hidden pt-[72px] md:pt-[80px]">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 pt-10 pb-16 md:pt-16 md:pb-24 lg:pt-20 lg:pb-32">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="max-w-2xl order-2 lg:order-1">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1c2544] mb-6 leading-tight tracking-tight">
