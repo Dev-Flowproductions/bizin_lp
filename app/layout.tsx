@@ -43,7 +43,10 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${manrope.variable} ${roboto.variable} h-full antialiased overflow-x-hidden`}
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <body
+        className="min-h-full flex flex-col font-sans"
+        suppressHydrationWarning
+      >
         <HtmlLangSync />
         {children}
       </body>

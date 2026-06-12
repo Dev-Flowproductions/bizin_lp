@@ -29,7 +29,10 @@ const EMPTY_INPUT: CalculatorInput = {
   employees: "",
   region: "",
   investment: "",
+  investmentType: "",
 };
+
+const EMPTY_CONTACT = { name: "", email: "", phone: "" };
 
 function buildAnswersPayload(
   finalInput: CalculatorInput,
@@ -40,6 +43,7 @@ function buildAnswersPayload(
   const empStep = steps.find((s) => s.field === "employees")!;
   const regionStep = steps.find((s) => s.field === "region")!;
   const invStep = steps.find((s) => s.field === "investment")!;
+  const typeStep = steps.find((s) => s.field === "investmentType")!;
   const sk = finalInput.sector;
   const sectorLabel = sectorStep.optionLabels[sk] ?? sk;
   return {
@@ -53,7 +57,25 @@ function buildAnswersPayload(
     regionLabel: regionStep.optionLabels[finalInput.region] ?? finalInput.region,
     investmentKey: finalInput.investment,
     investmentLabel: invStep.optionLabels[finalInput.investment] ?? finalInput.investment,
+    investmentTypeKey: finalInput.investmentType,
+    investmentTypeLabel:
+      typeStep.optionLabels[finalInput.investmentType] ?? finalInput.investmentType,
   };
+}
+
+function validateLeadForm(
+  contact: typeof EMPTY_CONTACT,
+  lead: SiteDictionary["calculator"]["lead"]
+): Partial<Record<keyof typeof EMPTY_CONTACT, string>> {
+  const errors: Partial<Record<keyof typeof EMPTY_CONTACT, string>> = {};
+  if (contact.name.trim().length < 2) errors.name = lead.nameRequired;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim())) {
+    errors.email = lead.emailInvalid;
+  }
+  if (contact.phone.replace(/\D/g, "").length < 9) {
+    errors.phone = lead.phoneRequired;
+  }
+  return errors;
 }
 
 export function EligibilityCalculator({
@@ -67,13 +89,19 @@ export function EligibilityCalculator({
 }) {
   const steps = calculator.steps;
   const ai = calculator.ai;
-  const [phase, setPhase] = useState<"idle" | "questions" | "generating" | "result">(
-    "idle"
-  );
+  const lead = calculator.lead;
+  const totalSteps = steps.length + 1;
+  const [phase, setPhase] = useState<
+    "idle" | "questions" | "lead" | "generating" | "result"
+  >("idle");
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [input, setInput] = useState<CalculatorInput>(EMPTY_INPUT);
   const [pendingValue, setPendingValue] = useState<string>("");
   const [sectorOtherText, setSectorOtherText] = useState("");
+  const [contact, setContact] = useState(EMPTY_CONTACT);
+  const [leadErrors, setLeadErrors] = useState<
+    Partial<Record<keyof typeof EMPTY_CONTACT, string>>
+  >({});
   const [aiDiagnosis, setAiDiagnosis] = useState<AiDiagnosis | null>(null);
   const [resultDisclaimer, setResultDisclaimer] = useState<string | null>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
@@ -105,7 +133,11 @@ export function EligibilityCalculator({
   }, [phase, currentStep]);
 
   const submitDiagnosis = useCallback(
-    async (finalInput: CalculatorInput, otherSector: string) => {
+    async (
+      finalInput: CalculatorInput,
+      otherSector: string,
+      leadContact: typeof EMPTY_CONTACT
+    ) => {
       setPhase("generating");
       setGenerationError(null);
       const answers = buildAnswersPayload(finalInput, steps, otherSector);
@@ -113,7 +145,15 @@ export function EligibilityCalculator({
         const res = await fetch("/api/eligibility-diagnosis", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ locale, answers }),
+          body: JSON.stringify({
+            locale,
+            answers,
+            contact: {
+              name: leadContact.name.trim(),
+              email: leadContact.email.trim(),
+              phone: leadContact.phone.trim(),
+            },
+          }),
         });
         const data = (await res.json()) as {
           diagnosis?: AiDiagnosis;
@@ -148,8 +188,7 @@ export function EligibilityCalculator({
       } catch (e) {
         const msg = e instanceof Error ? e.message : ai.errorGeneric;
         setGenerationError(msg);
-        setPhase("questions");
-        setPendingValue(finalInput.investment);
+        setPhase("lead");
       }
     },
     [
@@ -160,11 +199,20 @@ export function EligibilityCalculator({
     ]
   );
 
+  function handleLeadSubmit() {
+    const errors = validateLeadForm(contact, lead);
+    setLeadErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+    void submitDiagnosis(input, sectorOtherText, contact);
+  }
+
   function handleStart() {
     setPhase("questions");
     setCurrentStep(0);
     setPendingValue("");
     setSectorOtherText("");
+    setContact(EMPTY_CONTACT);
+    setLeadErrors({});
     setAiDiagnosis(null);
     setResultDisclaimer(null);
     setGenerationError(null);
@@ -194,11 +242,17 @@ export function EligibilityCalculator({
 
     setInput(updated);
     setPendingValue("");
-    void submitDiagnosis(updated, sectorOtherText);
+    setPhase("lead");
   }
 
   function handleBack() {
     setGenerationError(null);
+    if (phase === "lead") {
+      setPhase("questions");
+      setCurrentStep(steps.length - 1);
+      setPendingValue(input[steps[steps.length - 1].field] as string);
+      return;
+    }
     if (currentStep === 0) {
       setPhase("idle");
       setPendingValue("");
@@ -215,6 +269,8 @@ export function EligibilityCalculator({
     setInput(EMPTY_INPUT);
     setPendingValue("");
     setSectorOtherText("");
+    setContact(EMPTY_CONTACT);
+    setLeadErrors({});
     setAiDiagnosis(null);
     setResultDisclaimer(null);
     setGenerationError(null);
@@ -226,13 +282,21 @@ export function EligibilityCalculator({
   }
 
   const progress =
-    phase === "generating"
+    phase === "generating" || phase === "result"
       ? 100
-      : ((currentStep + (pendingValue ? 1 : 0)) / steps.length) * 100;
-  const stepProgressLabel = fillTemplate(calculator.stepProgress, {
-    current: currentStep + 1,
-    total: steps.length,
-  });
+      : phase === "lead"
+        ? (totalSteps / totalSteps) * 100
+        : ((currentStep + (pendingValue ? 1 : 0)) / totalSteps) * 100;
+  const stepProgressLabel =
+    phase === "lead"
+      ? fillTemplate(calculator.stepProgress, {
+          current: totalSteps,
+          total: totalSteps,
+        })
+      : fillTemplate(calculator.stepProgress, {
+          current: currentStep + 1,
+          total: totalSteps,
+        });
 
   if (phase === "idle") {
     const idle = calculator.idle;
@@ -248,20 +312,20 @@ export function EligibilityCalculator({
             aria-hidden
           />
 
-          <div className="relative px-8 py-10 md:px-12 md:py-12">
+          <div className="relative px-6 py-8 md:px-10 md:py-9">
             <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-[#1c2544]/45">
               {idle.eyebrow}
             </p>
-            <h3 className="mt-3 text-center text-2xl font-bold leading-tight tracking-tight text-[#1c2544] md:text-[1.75rem]">
+            <h3 className="mt-2 text-center text-xl font-bold leading-tight tracking-tight text-[#1c2544] md:text-2xl">
               {idle.title}
               <span className="block text-[#1c2544]/85">{idle.titleAccent}</span>
             </h3>
-            <p className="mx-auto mt-4 max-w-md text-center text-[15px] leading-relaxed text-gray-600">
+            <p className="mx-auto mt-3 max-w-md text-center text-sm leading-relaxed text-gray-600">
               {idle.body}
             </p>
 
             <div
-              className="mx-auto mt-8 flex max-w-xs justify-center gap-2"
+              className="mx-auto mt-5 flex max-w-xs justify-center gap-2"
               aria-hidden
             >
               {steps.map((_, i) => (
@@ -271,13 +335,13 @@ export function EligibilityCalculator({
                 />
               ))}
             </div>
-            <p className="mt-3 text-center text-xs text-gray-400">{idle.durationLine}</p>
+            <p className="mt-2 text-center text-xs text-gray-400">{idle.durationLine}</p>
 
-            <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <button
                 type="button"
                 onClick={handleStart}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#1c2544] px-10 py-4 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#2a3558] focus:outline-none focus:ring-2 focus:ring-[#1c2544] focus:ring-offset-2 sm:w-auto"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#1c2544] px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#2a3558] focus:outline-none focus:ring-2 focus:ring-[#1c2544] focus:ring-offset-2 sm:w-auto"
               >
                 {idle.cta}
                 <svg
@@ -302,7 +366,7 @@ export function EligibilityCalculator({
     );
   }
 
-  if (phase === "questions" || phase === "generating") {
+  if (phase === "questions" || phase === "lead" || phase === "generating") {
     return (
       <div ref={sectionRef} className="max-w-2xl mx-auto">
         <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
@@ -311,14 +375,16 @@ export function EligibilityCalculator({
               className="h-full bg-[#1c2544] rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
               role="progressbar"
-              aria-valuenow={currentStep + 1}
+              aria-valuenow={
+                phase === "lead" ? totalSteps : currentStep + 1
+              }
               aria-valuemin={1}
-              aria-valuemax={steps.length}
+              aria-valuemax={totalSteps}
               aria-label={stepProgressLabel}
             />
           </div>
 
-          <div className="p-8 md:p-12">
+          <div className="p-6 md:p-8">
             {phase === "generating" ? (
               <div className="py-6 text-center">
                 <div
@@ -330,6 +396,127 @@ export function EligibilityCalculator({
                   {ai.generatingBody}
                 </p>
               </div>
+            ) : phase === "lead" ? (
+              <>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
+                  {stepProgressLabel}
+                </p>
+
+                {generationError ? (
+                  <div
+                    className="mb-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900"
+                    role="alert"
+                  >
+                    <p className="font-semibold">{ai.errorTitle}</p>
+                    <p className="mt-1 text-rose-800/90">{generationError}</p>
+                  </div>
+                ) : null}
+
+                <h3 className="text-xl md:text-2xl font-bold text-[#1c2544] mb-2">
+                  {lead.title}
+                </h3>
+                <p className="text-sm text-gray-500 mb-6">{lead.subtitle}</p>
+
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <label
+                      htmlFor="calc-lead-name"
+                      className="block text-sm font-semibold text-[#1c2544] mb-1.5"
+                    >
+                      {lead.nameLabel}
+                    </label>
+                    <input
+                      id="calc-lead-name"
+                      type="text"
+                      autoComplete="name"
+                      value={contact.name}
+                      onChange={(ev) =>
+                        setContact((c) => ({ ...c, name: ev.target.value }))
+                      }
+                      placeholder={lead.namePlaceholder}
+                      className="w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-3 text-sm text-[#1c2544] placeholder:text-gray-400 focus:border-[#1c2544] focus:outline-none focus:ring-2 focus:ring-[#1c2544]/20"
+                    />
+                    {leadErrors.name ? (
+                      <p className="mt-1 text-xs text-amber-700">{leadErrors.name}</p>
+                    ) : null}
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="calc-lead-email"
+                      className="block text-sm font-semibold text-[#1c2544] mb-1.5"
+                    >
+                      {lead.emailLabel}
+                    </label>
+                    <input
+                      id="calc-lead-email"
+                      type="email"
+                      autoComplete="email"
+                      value={contact.email}
+                      onChange={(ev) =>
+                        setContact((c) => ({ ...c, email: ev.target.value }))
+                      }
+                      placeholder={lead.emailPlaceholder}
+                      className="w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-3 text-sm text-[#1c2544] placeholder:text-gray-400 focus:border-[#1c2544] focus:outline-none focus:ring-2 focus:ring-[#1c2544]/20"
+                    />
+                    {leadErrors.email ? (
+                      <p className="mt-1 text-xs text-amber-700">{leadErrors.email}</p>
+                    ) : null}
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="calc-lead-phone"
+                      className="block text-sm font-semibold text-[#1c2544] mb-1.5"
+                    >
+                      {lead.phoneLabel}
+                    </label>
+                    <input
+                      id="calc-lead-phone"
+                      type="tel"
+                      autoComplete="tel"
+                      value={contact.phone}
+                      onChange={(ev) =>
+                        setContact((c) => ({ ...c, phone: ev.target.value }))
+                      }
+                      placeholder={lead.phonePlaceholder}
+                      className="w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-3 text-sm text-[#1c2544] placeholder:text-gray-400 focus:border-[#1c2544] focus:outline-none focus:ring-2 focus:ring-[#1c2544]/20"
+                    />
+                    {leadErrors.phone ? (
+                      <p className="mt-1 text-xs text-amber-700">{leadErrors.phone}</p>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#1c2544] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1c2544] rounded-full px-3 py-2"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                    {calculator.nav.back}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleLeadSubmit}
+                    className="ml-auto inline-flex items-center gap-2 font-semibold transition-all duration-200 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1c2544] bg-[#1c2544] text-white hover:bg-[#2a3558] shadow-sm text-base px-8 py-3.5"
+                  >
+                    {lead.submit}
+                  </button>
+                </div>
+              </>
             ) : (
               <>
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-6">
@@ -347,7 +534,7 @@ export function EligibilityCalculator({
                       type="button"
                       onClick={() => {
                         setGenerationError(null);
-                        void submitDiagnosis(input, sectorOtherText);
+                        void submitDiagnosis(input, sectorOtherText, contact);
                       }}
                       className="mt-3 text-sm font-semibold text-[#1c2544] underline underline-offset-2 hover:text-[#2a3558]"
                     >
@@ -451,7 +638,7 @@ export function EligibilityCalculator({
                   >
                     {currentStep < steps.length - 1
                       ? calculator.nav.continue
-                      : calculator.nav.seeResult}
+                      : calculator.nav.continue}
                     <svg
                       className="w-4 h-4"
                       fill="none"

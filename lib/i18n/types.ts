@@ -19,7 +19,12 @@ export interface Step {
 }
 
 export interface CalculatorStepDef {
-  field: "sector" | "employees" | "region" | "investment";
+  field:
+    | "sector"
+    | "employees"
+    | "region"
+    | "investment"
+    | "investmentType";
   question: string;
   hint: string;
   /** Keys match calculator value keys (sector keys, employee bands, etc.) */
@@ -65,7 +70,7 @@ export interface SiteDictionary {
     body: string;
     bullets: string[];
   };
-  calculatorSection: { heading: string; subheading: string };
+  calculatorSection: { heading: string; subheading?: string };
   calculator: {
     eligibility: EligibilityCopy;
     steps: CalculatorStepDef[];
@@ -101,6 +106,21 @@ export interface SiteDictionary {
     };
     bands: Record<"high" | "medium" | "low", string>;
     nav: { back: string; continue: string; seeResult: string };
+    /** Lead capture before AI diagnosis */
+    lead: {
+      title: string;
+      subtitle: string;
+      nameLabel: string;
+      namePlaceholder: string;
+      emailLabel: string;
+      emailPlaceholder: string;
+      phoneLabel: string;
+      phonePlaceholder: string;
+      submit: string;
+      nameRequired: string;
+      emailInvalid: string;
+      phoneRequired: string;
+    };
     /** e.g. "Step {current} of {total}" — use fillTemplate */
     stepProgress: string;
   };

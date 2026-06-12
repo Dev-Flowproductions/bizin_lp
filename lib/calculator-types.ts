@@ -31,6 +31,14 @@ export type InvestmentBandKey =
   | "1m_5m"
   | "over_5m";
 
+export type InvestmentTypeKey =
+  | "equipamentos"
+  | "software"
+  | "construcao"
+  | "marketing"
+  | "formacao"
+  | "recursos_humanos";
+
 export type EligibilityBand = "high" | "medium" | "low";
 
 export interface CalculatorInput {
@@ -38,6 +46,7 @@ export interface CalculatorInput {
   employees: EmployeeBandKey | "";
   region: RegionKey | "";
   investment: InvestmentBandKey | "";
+  investmentType: InvestmentTypeKey | "";
 }
 
 export interface Programme {

@@ -9,21 +9,29 @@ import { parseAiDiagnosis } from "@/lib/ai/parse-diagnosis-json";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { calculateEligibility } from "@/lib/calculator-rules";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
+import {
+  persistCalculatorLead,
+  validateLeadContact,
+} from "@/lib/leads/persist-lead";
+import {
+  getOpenAiApiKey,
+  getOpenAiModel,
+  openAiKeyMissingHint,
+} from "@/lib/server/ai-env";
 
 const MAX_SECTOR_DESC = 600;
 
 /** Temporary: OpenAI instead of Gemini. Override with OPENAI_MODEL. */
 const DEFAULT_MODEL = "gpt-5.5";
 
-function getApiKey(): string | null {
-  return process.env.OPENAI_API_KEY ?? null;
-}
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const apiKey = getApiKey();
+  const apiKey = getOpenAiApiKey();
   if (!apiKey) {
     return NextResponse.json(
-      { error: "Missing OPENAI_API_KEY." },
+      { error: `Missing OPENAI_API_KEY.${openAiKeyMissingHint()}` },
       { status: 503 }
     );
   }
@@ -56,6 +64,8 @@ export async function POST(request: Request) {
     "regionLabel",
     "investmentKey",
     "investmentLabel",
+    "investmentTypeKey",
+    "investmentTypeLabel",
   ] as const;
   for (const k of required) {
     if (typeof answers[k] !== "string" || !(answers[k] as string).trim()) {
@@ -79,15 +89,25 @@ export async function POST(request: Request) {
     }
   }
 
+  const contactResult = validateLeadContact(b.contact);
+  if (!contactResult.ok) {
+    return NextResponse.json({ error: contactResult.error }, { status: 400 });
+  }
+  const contact = contactResult.data;
+
   const dict = getDictionary(locale);
   const heuristicInput = heuristicInputFromPayload(answers);
   const heuristic = calculateEligibility(heuristicInput, dict.calculator.eligibility);
 
-  const modelId = process.env.OPENAI_MODEL?.trim() || DEFAULT_MODEL;
-  const userPrompt = buildEligibilityDiagnosisPrompt(locale, answers, {
-    score: heuristic.score,
-    band: heuristic.band,
-  });
+  await persistCalculatorLead({ locale, contact, answers });
+
+  const modelId = getOpenAiModel(DEFAULT_MODEL);
+  const userPrompt = buildEligibilityDiagnosisPrompt(
+    locale,
+    answers,
+    { score: heuristic.score, band: heuristic.band },
+    contact
+  );
 
   try {
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
