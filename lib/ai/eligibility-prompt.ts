@@ -1,10 +1,10 @@
 import type { Locale } from "@/lib/i18n/config";
 import type { CalculatorInput } from "@/lib/calculator-types";
+import type { LeadContact } from "@/lib/leads/persist-lead";
 
 export type DiagnosisAnswersPayload = {
   sectorKey: string;
   sectorLabel: string;
-  /** Free text when sectorKey is "outro" */
   sectorDescription?: string;
   employeesKey: string;
   employeesLabel: string;
@@ -12,6 +12,8 @@ export type DiagnosisAnswersPayload = {
   regionLabel: string;
   investmentKey: string;
   investmentLabel: string;
+  investmentTypeKey: string;
+  investmentTypeLabel: string;
 };
 
 const LOCALE_NAMES: Record<Locale, string> = {
@@ -24,27 +26,34 @@ const LOCALE_NAMES: Record<Locale, string> = {
 export function buildEligibilityDiagnosisPrompt(
   locale: Locale,
   answers: DiagnosisAnswersPayload,
-  heuristic: { score: number; band: string }
+  heuristic: { score: number; band: string },
+  contact?: LeadContact
 ): string {
   const sectorLine =
     answers.sectorKey === "outro" && answers.sectorDescription?.trim()
       ? `Sector (other — user description): ${answers.sectorDescription.trim()}`
       : `Sector: ${answers.sectorLabel} (key: ${answers.sectorKey})`;
 
+  const contactBlock = contact
+    ? `Lead contact (for context only — do not repeat in output): ${contact.name}, ${contact.email}, ${contact.phone}`
+    : "";
+
   return `
 ${LOCALE_NAMES[locale]} — write EVERY user-facing string in this language only.
 
 ${sectorLine}
 Company size: ${answers.employeesLabel} (key: ${answers.employeesKey})
-Investment location (NUTS-style region): ${answers.regionLabel} (key: ${answers.regionKey})
+Investment location: ${answers.regionLabel} (key: ${answers.regionKey})
 Estimated investment band: ${answers.investmentLabel} (key: ${answers.investmentKey})
+Investment type focus: ${answers.investmentTypeLabel} (key: ${answers.investmentTypeKey})
+${contactBlock}
 
 Internal heuristic (rule-based, not official — use as a soft prior, you may adjust after reasoning): score ${heuristic.score}/100, band ${heuristic.band}.
 
 Task:
-1. Read the answers and, if sector is "other", interpret the user's free-text sector realistically for Portugal 2030–type programmes.
-2. Produce a clear, personalised diagnosis: strengths, caveats, and what is still uncertain.
-3. Suggest 2–4 programme *directions* (thematic axes or instrument families), not guaranteed grants — each with a short rationale tied to their answers.
+1. Read the answers and, if sector is "other", interpret the user's free-text sector realistically for Portugal.
+2. Produce a clear, personalised diagnosis covering business strategy, people/capacity building, and financing angles where relevant.
+3. Suggest 2–4 programme or support *directions* (thematic axes), not guaranteed grants — each with a short rationale tied to their answers.
 4. Give 3–5 concrete next steps, including engaging Bizin Portugal for a proper diagnostic where appropriate.
 
 Respond with JSON ONLY (no markdown), exactly this shape:
@@ -69,5 +78,6 @@ export function heuristicInputFromPayload(
     employees: answers.employeesKey as CalculatorInput["employees"],
     region: answers.regionKey as CalculatorInput["region"],
     investment: answers.investmentKey as CalculatorInput["investment"],
+    investmentType: answers.investmentTypeKey as CalculatorInput["investmentType"],
   };
 }

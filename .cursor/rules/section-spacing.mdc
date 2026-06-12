@@ -1,0 +1,38 @@
+---
+description: Shared section vertical padding and horizontal gutters aligned with the navbar
+globs: components/sections/**/*.tsx,components/layout/**/*.tsx
+alwaysApply: false
+---
+
+# Section spacing
+
+All landing-page sections must share the same layout rhythm.
+
+## Vertical padding
+
+- Use `sectionPaddingYClass` (`py-16 md:py-24`) on every section.
+- Do not hand-roll values like `py-12`, `py-20`, or `py-28`.
+- The hero uses `Section` with `underFixedHeader` (header clearance + standard bottom padding).
+- Sections directly after the hero may use `omitTopPadding` so spacing is not doubled.
+
+## Horizontal gutters
+
+- Section content must use `siteContainerClass` (`container mx-auto px-4 md:px-6 lg:px-8`).
+- This matches the navbar in `Header.tsx`. Do not exceed it with wider `px-*`, negative margins, or full-bleed inner wrappers.
+- Prefer the `Section` component from `@/components/layout/Section` instead of duplicating classes.
+
+## Example
+
+```tsx
+import { Section } from "@/components/layout/Section";
+
+export function Example({ dict }: { dict: SiteDictionary }) {
+  return (
+    <Section className="bg-gray-50">
+      <h2>{dict.example.heading}</h2>
+    </Section>
+  );
+}
+```
+
+Tokens live in `@/lib/layout/site-layout.ts`.

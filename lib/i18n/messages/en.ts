@@ -18,15 +18,16 @@ export const en: SiteDictionary = {
     languageMenuAria: "Choose language",
   },
   hero: {
-    heading: "Invest in Portugal with clearer criteria and fewer blind spots",
+    heading:
+      "We help your business grow - in strategy, people and financing.",
     subheading:
-      "Expanding or setting up in Portugal opens real opportunities — but incentives, eligibility rules and delivery timelines are easy to misread. Bizin Portugal helps companies and investors understand what is realistic, which Portugal 2030 axes may matter for your case, and how to move forward with more confidence.",
-    ctaPrimary: "Check my eligibility",
-    ctaSecondary: "Book an investment consultation",
+      "Business consulting and human capital development for companies ready to grow.",
+    ctaPrimary: "Assess my project",
+    ctaSecondary: "Book a consultation",
     bookingUrl: "https://www.bizinportugal.com/#booking-section",
     imageUrl:
-      "https://images.unsplash.com/photo-1585208798174-6cedd86e019a?q=80&w=2340",
-    imageAlt: "Douro Valley landscape, Portugal",
+      "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2340",
+    imageAlt: "Team in a business meeting",
   },
   trustMetrics: [
     { value: "€2.3M+", label: "Capital financed and leveraged", visible: false },
@@ -49,9 +50,7 @@ export const en: SiteDictionary = {
     ],
   },
   calculatorSection: {
-    heading: "Assess your project’s potential in a few steps",
-    subheading:
-      "Answer four short questions and receive a first-pass eligibility estimate, the programme axes most relevant to your profile, and practical next steps — without sharing personal data.",
+    heading: "Assess your project’s potential",
   },
   calculator: {
     eligibility: {
@@ -203,19 +202,32 @@ export const en: SiteDictionary = {
           over_5m: "Over €5,000,000",
         },
       },
+      {
+        field: "investmentType",
+        question: "What type of investment are you planning?",
+        hint: "Choose the option that best describes the main focus of your project.",
+        optionLabels: {
+          equipamentos: "Equipment acquisition",
+          software: "Software",
+          construcao: "Construction",
+          marketing: "Marketing",
+          formacao: "Training",
+          recursos_humanos: "Human resources",
+        },
+      },
     ],
     idle: {
-      eyebrow: "Portugal 2030",
-      title: "Four questions.",
-      titleAccent: "One clear read-out.",
-      body: "No personal data. Work through the steps and get a first-pass eligibility estimate plus the most relevant programme axes for your answers.",
-      durationLine: "About one minute · four steps",
+      eyebrow: "Quick assessment",
+      title: "Five questions.",
+      titleAccent: "A tailored read-out.",
+      body: "Work through the steps and receive an initial view of your project’s potential.",
+      durationLine: "About two minutes · five steps",
       cta: "Start the assessment",
     },
     ai: {
       generatingTitle: "Generating your diagnosis",
       generatingBody:
-        "This may take a few seconds. We are combining your answers with Portugal 2030 context and how Bizin Portugal typically supports projects.",
+        "This may take a few seconds. We are analysing your answers with Bizin Portugal’s expertise.",
       retry: "Try again",
       errorTitle: "We could not generate the diagnosis",
       errorGeneric: "Check your connection and try again.",
@@ -242,7 +254,21 @@ export const en: SiteDictionary = {
       medium: "Moderate initial fit",
       low: "Limited initial fit",
     },
-    nav: { back: "Back", continue: "Continue", seeResult: "See results" },
+    nav: { back: "Back", continue: "Continue", seeResult: "Continue" },
+    lead: {
+      title: "Final step",
+      subtitle: "Leave your contact details to receive your project assessment.",
+      nameLabel: "Name",
+      namePlaceholder: "Your full name",
+      emailLabel: "Email",
+      emailPlaceholder: "name@company.com",
+      phoneLabel: "Phone",
+      phonePlaceholder: "+351 900 000 000",
+      submit: "Request assessment",
+      nameRequired: "Please enter your name (at least 2 characters).",
+      emailInvalid: "Please enter a valid email address.",
+      phoneRequired: "Please enter a valid phone number.",
+    },
     stepProgress: "Step {current} of {total}",
   },
   howItWorks: {
@@ -252,67 +278,88 @@ export const en: SiteDictionary = {
         number: "01",
         title: "Initial diagnosis",
         description:
-          "We review context, maturity and how your project could map to available incentives.",
+          "Analysis of the business, its needs and objectives.",
       },
       {
         number: "02",
-        title: "Strategy and application",
+        title: "Strategy and growth plan",
         description:
-          "We identify the most relevant schemes and help you structure the process end to end.",
+          "Support structuring the investment and building team capability.",
       },
       {
         number: "03",
-        title: "Delivery support",
+        title: "Ongoing support",
         description:
-          "We stay involved through implementation to reduce risk, delay and misalignment.",
+          "Strategic support in management and growth.",
       },
     ],
   },
   proof: {
-    heading: "Confidence built on delivery, not slogans",
+    heading: "Confidence built on results",
     stats: [
-      { value: "€2.3M+", label: "Capital financed and leveraged", visible: false },
-      { value: "98%+", label: "Client satisfaction rate", visible: false },
-      { value: "120+", label: "International clients supported", visible: false },
+      {
+        value: "+30 years",
+        label: "of business consulting experience",
+        visible: true,
+      },
+      {
+        value: "+400",
+        label: "projects supported in Portugal",
+        visible: true,
+      },
+      {
+        value: "€43M",
+        label: "in investment supported",
+        visible: true,
+      },
+      {
+        value: "+19 years",
+        label: "of certified training experience",
+        visible: true,
+      },
+      {
+        value: "12",
+        label: "certified training areas",
+        visible: true,
+      },
+      {
+        value: "+50,000 h",
+        label: "of certified training delivered",
+        visible: true,
+      },
     ],
-    quote:
-      "Our team works with companies and investors who need a clear, rigorous read of Portugal’s incentives landscape — without noise or over-promising.",
-    quoteAttribution: "Bizin Portugal team",
+    quote: "",
+    quoteAttribution: "",
   },
   faq: {
     heading: "Frequently asked questions",
     items: [
       {
-        question: "Which companies can benefit from Portugal 2030 incentives?",
+        question: "Does Bizin Portugal support business management and strategy?",
         answer:
-          "Portugal 2030 is aimed at SMEs and large enterprises across sectors such as industry, technology, tourism, energy, healthcare and training. Eligibility depends on project type, investment location and company profile. Bizin Portugal runs an initial review to surface the most relevant opportunities for your specific case.",
+          "Yes. Bizin Portugal helps companies define strategy, growth priorities and investment decisions, aligning business goals, teams and available financing.",
       },
       {
-        question: "Can a foreign-owned company apply?",
+        question: "What does human capital development support include?",
         answer:
-          "Yes. Foreign companies can access Portugal 2030 support where the activity or investment is carried out in Portugal. In some situations you will need a Portuguese legal entity. Bizin Portugal supports the full journey, including legal structuring and the application itself.",
+          "It includes training needs analysis, capability plans, certified training across multiple areas and implementation support to strengthen critical team skills.",
       },
       {
-        question: "Does the calculator result guarantee eligibility?",
+        question: "What types of companies work with Bizin Portugal?",
         answer:
-          "No. The tool provides an indicative estimate based on simplified assumptions. Real eligibility depends on the programme, the notice in force and a detailed review of your project. Treat the output as orientation, not an official determination.",
+          "We work with SMEs and growing companies, domestic and international investors, across industry, services, technology, tourism, healthcare and more — always with concrete projects in Portugal.",
       },
       {
-        question: "How quickly can I know if my project is worth pursuing?",
+        question: "How does the initial project assessment work?",
         answer:
-          "In an initial conversation with Bizin Portugal you can usually get a preliminary read on fit within a week. A deeper review typically takes two to four weeks, depending on complexity and how complete your documentation is.",
-      },
-      {
-        question: "Does Bizin only handle the application, or implementation too?",
-        answer:
-          "Bizin Portugal supports the project from diagnosis through to delivery. That includes structuring the investment, preparing and managing the incentive application, coordinating with authorities and supporting implementation to reduce risk and slippage.",
+          "The calculator collects information about your business and project. Based on your answers, Bizin Portugal prepares a tailored initial read-out and follows up in a consultation to deepen the diagnosis.",
       },
     ],
   },
   finalCta: {
-    heading: "Want to know whether Portugal 2030 is a serious option for your project?",
-    body: "Request an initial review without obligation and move forward with clearer visibility on eligibility, realistic programme routes and practical next steps.",
-    cta: "Book an investment consultation",
+    heading: "Ready to take the next step?",
+    body: "Talk to us to assess your needs and your project’s potential.",
+    cta: "Book a consultation",
     microcopy: "No commitment at this stage",
     bookingUrl: "https://www.bizinportugal.com/#booking-section",
   },

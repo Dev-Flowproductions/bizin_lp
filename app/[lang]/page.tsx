@@ -2,8 +2,6 @@ import { CalculatorSection } from "@/components/sections/CalculatorSection";
 import { Faq } from "@/components/sections/Faq";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Hero } from "@/components/sections/Hero";
-import { HowItWorks } from "@/components/sections/HowItWorks";
-import { Problem } from "@/components/sections/Problem";
 import { Proof } from "@/components/sections/Proof";
 import { Solution } from "@/components/sections/Solution";
 import { defaultLocale, isLocale } from "@/lib/i18n/config";
@@ -51,10 +49,8 @@ export default async function Page({
       />
 
       <Hero dict={dict} />
-      <Problem dict={dict} />
       <Solution dict={dict} />
       <CalculatorSection dict={dict} />
-      <HowItWorks dict={dict} />
       <Proof dict={dict} />
       <Faq dict={dict} />
       <FinalCta dict={dict} />
